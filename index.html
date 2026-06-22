@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kindle Reader Test</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+}
+
+/* 书架 */
+#shelf {
+    padding: 20px;
+}
+
+.book {
+    background: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* 阅读器 */
+#reader {
+    display: none;
+    height: 100vh;
+    background: white;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#content {
+    height: 80vh;
+    overflow: hidden;
+    font-size: 20px;
+    line-height: 1.6;
+}
+
+/* 控制栏 */
+#toolbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #eee;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+button {
+    font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 书架 -->
+<div id="shelf">
+    <h2>📚 书架</h2>
+    <div class="book" onclick="openBook()">三体（测试书）</div>
+</div>
+
+<!-- 阅读器 -->
+<div id="reader">
+    <div id="content"></div>
+
+    <div id="toolbar">
+        <button onclick="prevPage()">⬅ 上一页</button>
+        <button onclick="increaseFont()">A+</button>
+        <button onclick="decreaseFont()">A-</button>
+        <button onclick="nextPage()">下一页 ➡</button>
+    </div>
+</div>
+
+<script>
+const bookText = [
+`第一章：宇宙的闪烁
+这是测试内容第一页，用于模拟电子书翻页效果。`,
+
+`第二章：黑暗森林
+这是第二页内容，你可以点击右侧翻页。`,
+
+`第三章：文明的选择
+这是最后一页测试内容。`
+];
+
+let page = 0;
+let fontSize = 20;
+
+function openBook() {
+    document.getElementById("shelf").style.display = "none";
+    document.getElementById("reader").style.display = "block";
+    render();
+}
+
+function render() {
+    document.getElementById("content").innerText = bookText[page];
+    document.getElementById("content").style.fontSize = fontSize + "px";
+}
+
+function nextPage() {
+    if (page < bookText.length - 1) {
+        page++;
+        render();
+    }
+}
+
+function prevPage() {
+    if (page > 0) {
+        page--;
+        render();
+    }
+}
+
+function increaseFont() {
+    fontSize += 2;
+    render();
+}
+
+function decreaseFont() {
+    fontSize -= 2;
+    render();
+}
+
+/* Kindle 友好：点击左右翻页 */
+document.addEventListener("click", function(e) {
+    const x = e.clientX;
+    const w = window.innerWidth;
+
+    if (document.getElementById("reader").style.display === "block") {
+        if (x < w * 0.3) prevPage();
+        else if (x > w * 0.7) nextPage();
+    }
+});
+</script>
+
+</body>
+</html>
