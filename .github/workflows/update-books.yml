@@ -1,0 +1,47 @@
+name: Auto Update books.json
+
+on:
+  push:
+    paths:
+      - '**/*.epub'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Generate books.json
+        run: |
+          python -c '
+          import os
+          import json
+          import urllib.parse
+          
+          base_url = "https://linshijie1999.github.io/kindle-reader"
+          epubs = []
+          for root, dirs, files in os.walk("."):
+              for file in files:
+                  if file.endswith(".epub"):
+                      # 获取相对路径 (并过滤掉可能的 ./ 前缀)
+                      rel_path = os.path.relpath(os.path.join(root, file), ".")
+                      # 为了确保带有空格和中文名的书籍能够正常访问，对路径进行 URL 编码
+                      url = f"{base_url}/{urllib.parse.quote(rel_path)}"
+                      epubs.append(url)
+          
+          with open("books.json", "w", encoding="utf-8") as f:
+              json.dump(epubs, f, indent=2, ensure_ascii=False)
+          '
+          
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add books.json
+          git commit -m "Auto-update books.json with new EPUBs [skip ci]" || echo "No changes to commit"
+          git push
